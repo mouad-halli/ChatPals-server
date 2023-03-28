@@ -1,0 +1,30 @@
+{
+  "name": "chatpals-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "npx nodemon",
+    "build": "rimraf ./build && tsc",
+    "start": "npm run build && node build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mouad-halli/ChatPals-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mouad-halli/ChatPals-server/issues"
+  },
+  "homepage": "https://github.com/mouad-halli/ChatPals-server#readme",
+  "devDependencies": {
+    "@types/node": "^18.15.10",
+    "nodemon": "^2.0.22",
+    "rimraf": "^4.4.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.2"
+  }
+}
