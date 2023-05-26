@@ -3,10 +3,10 @@ import { createError } from "../utils/error"
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/environment"
-import User from '../models/users'
+import User from '../models/user'
 import { tokenPayload } from "../types/token"
 
-const { UNAUTHORIZED, NOT_FOUND } = StatusCodes
+const { UNAUTHORIZED, NOT_FOUND, FORBIDDEN } = StatusCodes
 
 export const verifyRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -14,7 +14,7 @@ export const verifyRefreshToken = async (req: Request, res: Response, next: Next
         const refreshToken = req.cookies.refreshToken
 
         if (!refreshToken)
-            return next(createError(UNAUTHORIZED, 'you are not authenticated'))
+            return next(createError(FORBIDDEN, 'you are not authenticated'))
 
         try {
             const { _id: userId } = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as tokenPayload
@@ -23,9 +23,10 @@ export const verifyRefreshToken = async (req: Request, res: Response, next: Next
 
             if (!user)
                 return next(createError(NOT_FOUND, "user Not Found"))
+
             
             if (!user.refreshToken)
-                return next(createError(UNAUTHORIZED, 'you are not authenticated'))
+                return next(createError(FORBIDDEN, 'you are not authenticated'))
             
             req.user = {
                 _id: user._id, firstname: user.firstname,

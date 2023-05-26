@@ -1,16 +1,15 @@
 import { NextFunction, Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
-import User from '../models/users'
+import User from '../models/user'
 import bcryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { createError } from "../utils/error"
 import {
     ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, 
-    ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION
+    ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION, CLIENT_URL
 } from '../config/environment'
 
-
-const { OK, CREATED, BAD_REQUEST, UNAUTHORIZED } = StatusCodes
+const { OK, CREATED, BAD_REQUEST, UNAUTHORIZED, PERMANENT_REDIRECT } = StatusCodes
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -67,7 +66,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         res.status(OK)
         .cookie('refreshToken', generatedRefreshToken, { httpOnly: true })
         .cookie('accessToken', generatedAccessToken, { httpOnly: true })
-        .json({ firstname: user.firstname, lastname: user.lastname, email: user.email })
+        .json({ firstname: user.firstname, lastname: user.lastname, email: user.email, imgUrl: user.imgUrl })
 
     } catch (error) {
         next(error)
@@ -120,7 +119,38 @@ const refreshAccessToken = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
+const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        if (!req.user)
+            next()
+
+        const generatedRefreshToken = jwt.sign(
+            { _id: req.user._id }, REFRESH_TOKEN_SECRET,
+            { expiresIn: REFRESH_TOKEN_EXPIRATION }
+        )
+
+        const generatedAccessToken = jwt.sign(
+            { _id: req.user._id }, ACCESS_TOKEN_SECRET,
+            { expiresIn: ACCESS_TOKEN_EXPIRATION }
+        )
+
+        await User.findByIdAndUpdate(req.user._id, {
+            refreshToken: generatedRefreshToken,
+            accessToken: generatedAccessToken
+        })
+
+        res.status(OK)
+        .cookie('refreshToken', generatedRefreshToken, { httpOnly: true })
+        .cookie('accessToken', generatedAccessToken, { httpOnly: true })
+        .redirect(PERMANENT_REDIRECT, CLIENT_URL + '/settings')
+
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 export = {
-    register, login, logout, refreshAccessToken
+    register, login, logout, refreshAccessToken, googleAuth
 }

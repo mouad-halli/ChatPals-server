@@ -8,13 +8,16 @@ const UserSchema = new Schema<IUser>({
     lastname: { type: String },
 
     email: { type: String },
+
+    imgUrl: { type: String, default: null },
     
     password: { type: String, select: false },
 
     accessToken: { type: String, select: false },
 
-    refreshToken: { type: String, select: false }
+    refreshToken: { type: String, select: false },
 
+    googleId: { type: String, select: false }
 
 } )
 

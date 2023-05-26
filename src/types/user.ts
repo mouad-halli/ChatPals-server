@@ -1,14 +1,15 @@
-import { Request } from "express"
-import { Types } from "mongoose"
+import { ObjectId } from "mongoose"
 
 export interface IUser {
-    _id: Types.ObjectId
+    _id: ObjectId
     firstname: string
     lastname: string
     email: string
     password: string
+    imgUrl?: string
     accessToken?: string
     refreshToken?: string
+    googleId?: string
 }
 
 export interface UserDto extends Omit<IUser, '_id' | 'accessToken' | 'refreshToken'> {}
